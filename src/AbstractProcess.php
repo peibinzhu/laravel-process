@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PeibinLaravel\Process;
 
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Foundation\Application;
 use PeibinLaravel\Process\Contracts\Process as ProcessContract;
 use PeibinLaravel\Process\Events\AfterProcessHandle;
 use PeibinLaravel\Process\Events\BeforeProcessHandle;
@@ -53,10 +53,10 @@ abstract class AbstractProcess implements ProcessContract
 
     protected float $recvTimeout = 10.0;
 
-    public function __construct(public Application $app)
+    public function __construct(protected Container $container)
     {
-        if ($this->app->bound(Dispatcher::class)) {
-            $this->event = $this->app->get(Dispatcher::class);
+        if ($container->has(Dispatcher::class)) {
+            $this->event = $container->get(Dispatcher::class);
         }
     }
 
@@ -160,9 +160,9 @@ abstract class AbstractProcess implements ProcessContract
 
     protected function logThrowable(Throwable $throwable): void
     {
-        if (app()->has(StdoutLogger::class) && app()->has(Formatter::class)) {
-            $logger = app(StdoutLogger::class);
-            $formatter = app(Formatter::class);
+        if ($this->container->has(StdoutLogger::class) && $this->container->has(Formatter::class)) {
+            $logger = $this->container->get(StdoutLogger::class);
+            $formatter = $this->container->get(Formatter::class);
             $logger->error($formatter->format($throwable));
 
             if ($throwable instanceof SocketAcceptException) {
