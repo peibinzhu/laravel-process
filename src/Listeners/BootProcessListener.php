@@ -6,11 +6,11 @@ namespace PeibinLaravel\Process\Listeners;
 
 use Illuminate\Config\Repository;
 use Illuminate\Contracts\Container\Container;
-use Laravel\Octane\Events\MainServerStarting;
 use PeibinLaravel\Di\Annotation\AnnotationCollector;
 use PeibinLaravel\Process\Annotations\Process;
 use PeibinLaravel\Process\Contracts\Process as ProcessContract;
 use PeibinLaravel\Process\ProcessManager;
+use PeibinLaravel\SwooleEvent\Events\BeforeMainServerStart;
 
 class BootProcessListener
 {
@@ -20,14 +20,17 @@ class BootProcessListener
 
     public function handle(object $event): void
     {
-        if ($event instanceof MainServerStarting) {
+        if ($event instanceof BeforeMainServerStart) {
             $server = $event->server;
+            $serverConfig = $event->serverConfig;
 
+            $serverProcesses = $serverConfig['processes'] ?? [];
             $processes = $this->config->get('processes', []);
             $annotationProcesses = $this->getAnnotationProcesses();
 
             // Retrieve the processes have been registered.
             $processes = array_merge(
+                $serverProcesses,
                 $processes,
                 ProcessManager::all(),
                 array_keys($annotationProcesses)

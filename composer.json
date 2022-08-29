@@ -15,9 +15,9 @@
   ],
   "require": {
     "php": ">=8.0",
-    "laravel/octane": "^1.2",
     "peibin/laravel-di": "^1.5",
-    "peibin/laravel-utils": "^1.2"
+    "peibin/laravel-swoole-event": "^1.0",
+    "peibin/laravel-utils": "^1.5"
   },
   "autoload": {
     "psr-4": {

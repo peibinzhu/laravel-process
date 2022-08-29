@@ -6,6 +6,7 @@ namespace PeibinLaravel\Process;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use PeibinLaravel\Contracts\StdoutLoggerInterface;
 use PeibinLaravel\Process\Contracts\Process as ProcessContract;
 use PeibinLaravel\Process\Events\AfterProcessHandle;
 use PeibinLaravel\Process\Events\BeforeProcessHandle;
@@ -15,7 +16,6 @@ use PeibinLaravel\Process\Exceptions\SocketAcceptException;
 use PeibinLaravel\Process\Utils\Constants;
 use PeibinLaravel\Process\Utils\CoordinatorManager;
 use PeibinLaravel\Utils\Contracts\Formatter;
-use PeibinLaravel\Utils\Contracts\StdoutLogger;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Channel;
 use Swoole\Process as SwooleProcess;
@@ -25,33 +25,25 @@ use Throwable;
 
 abstract class AbstractProcess implements ProcessContract
 {
-    /**
-     * Process name.
-     *
-     * @var string
-     */
     public string $name = 'process';
 
-    /**
-     * Number of processes.
-     *
-     * @var int
-     */
     public int $nums = 1;
+
+    public bool $redirectStdinStdout = false;
 
     public int $pipeType = SOCK_DGRAM;
 
-    public $enableCoroutine = true;
-
-    protected ?SwooleProcess $process;
+    public bool $enableCoroutine = true;
 
     protected ?Dispatcher $event;
 
-    protected int $restartInterval = 5;
+    protected ?SwooleProcess $process;
 
     protected int $recvLength = 65535;
 
     protected float $recvTimeout = 10.0;
+
+    protected int $restartInterval = 5;
 
     public function __construct(protected Container $container)
     {
@@ -111,7 +103,7 @@ abstract class AbstractProcess implements ProcessContract
                     CoordinatorManager::until(Constants::WORKER_EXIT)->resume();
                     sleep($this->restartInterval);
                 }
-            }, false, SOCK_DGRAM, $this->enableCoroutine);
+            }, $this->redirectStdinStdout, SOCK_DGRAM, $this->enableCoroutine);
             $server->addProcess($process);
 
             if ($this->enableCoroutine) {
@@ -160,8 +152,8 @@ abstract class AbstractProcess implements ProcessContract
 
     protected function logThrowable(Throwable $throwable): void
     {
-        if ($this->container->has(StdoutLogger::class) && $this->container->has(Formatter::class)) {
-            $logger = $this->container->get(StdoutLogger::class);
+        if ($this->container->has(StdoutLoggerInterface::class) && $this->container->has(Formatter::class)) {
+            $logger = $this->container->get(StdoutLoggerInterface::class);
             $formatter = $this->container->get(Formatter::class);
             $logger->error($formatter->format($throwable));
 
