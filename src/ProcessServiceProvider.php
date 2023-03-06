@@ -10,13 +10,11 @@ use PeibinLaravel\Process\Events\BeforeProcessHandle;
 use PeibinLaravel\Process\Listeners\BootProcessListener;
 use PeibinLaravel\Process\Listeners\LogAfterProcessStoppedListener;
 use PeibinLaravel\Process\Listeners\LogBeforeProcessStartListener;
+use PeibinLaravel\ProviderConfig\Contracts\ProviderConfigInterface;
 use PeibinLaravel\SwooleEvent\Events\BeforeMainServerStart;
-use PeibinLaravel\Utils\Providers\RegisterProviderConfig;
 
-class ProcessServiceProvider extends ServiceProvider
+class ProcessServiceProvider extends ServiceProvider implements ProviderConfigInterface
 {
-    use RegisterProviderConfig;
-
     public function __invoke(): array
     {
         return [
