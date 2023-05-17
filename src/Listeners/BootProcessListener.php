@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PeibinLaravel\Process\Listeners;
 
-use Illuminate\Config\Repository;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Container\Container;
 use PeibinLaravel\Di\Annotation\AnnotationCollector;
 use PeibinLaravel\Process\Annotations\Process;
-use PeibinLaravel\Process\Contracts\Process as ProcessContract;
+use PeibinLaravel\Process\Contracts\ProcessInterface;
 use PeibinLaravel\Process\ProcessManager;
 use PeibinLaravel\SwooleEvent\Events\BeforeMainServerStart;
 
@@ -41,7 +41,7 @@ class BootProcessListener
                 } else {
                     $instance = $process;
                 }
-                if ($instance instanceof ProcessContract) {
+                if ($instance instanceof ProcessInterface) {
                     $instance->isEnable($server) && $instance->bind($server);
                 }
             }

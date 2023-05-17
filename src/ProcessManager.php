@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PeibinLaravel\Process;
 
-use PeibinLaravel\Process\Contracts\Process as ProcessContract;
+use PeibinLaravel\Process\Contracts\ProcessInterface;
 
 class ProcessManager
 {
@@ -15,7 +15,7 @@ class ProcessManager
      */
     protected static $running = true;
 
-    public static function register(ProcessContract $process): void
+    public static function register(ProcessInterface $process): void
     {
         static::$processes[] = $process;
     }

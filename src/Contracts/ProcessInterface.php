@@ -6,7 +6,7 @@ namespace PeibinLaravel\Process\Contracts;
 
 use Swoole\Server;
 
-interface Process
+interface ProcessInterface
 {
     /**
      * Create the process object according to process number and bind to server.
